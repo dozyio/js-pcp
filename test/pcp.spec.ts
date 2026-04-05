@@ -48,7 +48,7 @@ const itWithGateway = process.env.CI != null || gatewayAddress == null
   ? it.skip
   : it
 
-describe('js-libp2p-pcp', () => {
+describe('pcp', () => {
   let gateway: Gateway
 
   afterEach(async () => {

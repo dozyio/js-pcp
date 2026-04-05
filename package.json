@@ -1,15 +1,15 @@
 {
-  "name": "@dozyio/js-libp2p-pcp",
+  "name": "@dozyio/pcp",
   "version": "0.0.0",
   "description": "PCP (RFC 6887) port mapping for Node.js",
   "license": "Apache-2.0 OR MIT",
-  "homepage": "https://github.com/dozyio/js-libp2p-pcp#readme",
+  "homepage": "https://github.com/dozyio/js-pcp#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dozyio/js-libp2p-pcp.git"
+    "url": "git+https://github.com/dozyio/js-pcp.git"
   },
   "bugs": {
-    "url": "https://github.com/dozyio/js-libp2p-pcp/issues"
+    "url": "https://github.com/dozyio/js-pcp/issues"
   },
   "publishConfig": {
     "access": "public",
