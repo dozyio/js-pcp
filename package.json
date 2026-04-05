@@ -67,6 +67,10 @@
               "release": "patch"
             },
             {
+              "type": "chore",
+              "release": "patch"
+            },
+            {
               "type": "test",
               "release": "patch"
             },
