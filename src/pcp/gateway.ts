@@ -4,13 +4,15 @@ import { isIPv4 } from '@chainsafe/is-ip'
 import { parseIP } from '@chainsafe/is-ip/parse'
 import { logger } from '@libp2p/logger'
 import errCode from 'err-code'
-import defer, { type DeferredPromise } from 'p-defer'
+import defer from 'p-defer'
 import { raceSignal } from 'race-signal'
-import { findLocalAddresses, isPrivateIp } from '../utils.js'
-import { Mappings, type Mapping } from './mappings.js'
+import { findLocalAddresses } from '../utils.js'
+import { Mappings } from './mappings.js'
 import type { Gateway, GlobalMapPortOptions, PortMapping, PCPMapPortOptions } from '../index.js'
+import type { Mapping } from './mappings.js'
 import type { AbortOptions } from 'abort-error'
 import type { Socket, RemoteInfo } from 'dgram'
+import type { DeferredPromise } from 'p-defer'
 
 // rfc6887 definitions
 // const CLIENT_PORT = 5350
@@ -113,13 +115,12 @@ export class PCPGateway extends EventEmitter implements Gateway {
     this.connect()
   }
 
-  public async * mapAll (internalPort: number, options: PCPMapPortOptions): AsyncGenerator<PortMapping, void, unknown> {
+  public async * mapAll (internalPort: number, options: Omit<PCPMapPortOptions, 'internalAddress'> = {}): AsyncGenerator<PortMapping, void, unknown> {
     let mapped = false
 
     for (const host of findLocalAddresses(this.family)) {
       try {
         log('mapping host', host)
-        options.internalAddress = host
         const mapping = await this.map(internalPort, host, options)
         mapped = true
 
@@ -134,7 +135,7 @@ export class PCPGateway extends EventEmitter implements Gateway {
     }
   }
 
-  public async map (internalPort: number, internalHost: string, opts: PCPMapPortOptions): Promise<PortMapping> {
+  public async map (internalPort: number, internalHost: string, opts: Omit<PCPMapPortOptions, 'internalAddress'> = {}): Promise<PortMapping> {
     const options = {
       internalAddress: internalHost,
       publicPort: opts?.suggestedExternalPort ?? internalPort,
@@ -167,7 +168,7 @@ export class PCPGateway extends EventEmitter implements Gateway {
     }
 
     return {
-      externalHost: isPrivateIp(internalHost) === true ? await this.externalIp(opts) : internalHost,
+      externalHost: result.externalAddress,
       externalPort: result.externalPort,
       internalHost,
       internalPort: result.internalPort,
@@ -276,8 +277,6 @@ export class PCPGateway extends EventEmitter implements Gateway {
     }
 
     this.queue = []
-    this.connecting = false
-    this.listening = false
     this.req = null
     this.reqActive = false
     this.mappings.deleteAll()
@@ -305,7 +304,10 @@ export class PCPGateway extends EventEmitter implements Gateway {
 
   private connect (): void {
     log('Client#connect()')
-    if (this.connecting) return
+    if (this.connecting) {
+      return
+    }
+
     this.connecting = true
     this.clientSocket.bind(0) // use a random port https://www.rfc-editor.org/rfc/rfc6887#section-8.1
   }
@@ -337,10 +339,6 @@ export class PCPGateway extends EventEmitter implements Gateway {
   }
 
   private closeSocket (): void {
-    if (!this.listening && !this.connecting) {
-      return
-    }
-
     try {
       this.clientSocket.close()
     } catch (err: any) {
@@ -430,7 +428,7 @@ export class PCPGateway extends EventEmitter implements Gateway {
     this.queue.shift()
 
     if (parsed.vers !== PCP_VERSION) {
-      cb(new Error(`"vers" must be ${PCP_VERSION}. Got: ${parsed.vers}`)) // eslint-disable-line @typescript-eslint/restrict-template-expressions
+      cb(new Error(`"vers" must be ${PCP_VERSION}. Got: ${parsed.vers}`))
       return
     }
 
@@ -655,8 +653,7 @@ export class PCPGateway extends EventEmitter implements Gateway {
 
     parsed.externalPort = msg.readUInt16BE(42)
 
-    parsed.externalAddress = Buffer.alloc(16, 0)
-    msg.copy(parsed.externalAddress, 0, 44, 60)
+    parsed.externalAddress = this.parseExternalAddress(msg.subarray(44, 60))
 
     const updated = this.mappings.update(parsed.internalPort, parsed.protocol, parsed.nonce, parsed.externalAddress, parsed.externalPort, (Math.floor(Date.now() / 1000) + parsed.lifetime) * 1000, parsed.lifetime)
     if (!updated) {
@@ -812,6 +809,24 @@ export class PCPGateway extends EventEmitter implements Gateway {
     const min = 49152
     const max = 65535
     return Math.floor(Math.random() * (max - min + 1)) + min
+  }
+
+  private parseExternalAddress (addressBytes: Uint8Array): string {
+    if (addressBytes.length !== 16) {
+      throw new Error(`Invalid external address length: ${addressBytes.length}`)
+    }
+
+    if (this.family === 'IPv4') {
+      const octets = addressBytes.subarray(12)
+      return `${octets[0]}.${octets[1]}.${octets[2]}.${octets[3]}`
+    }
+
+    const hextets: string[] = []
+    for (let i = 0; i < 16; i += 2) {
+      hextets.push(((addressBytes[i] << 8) | addressBytes[i + 1]).toString(16).padStart(4, '0'))
+    }
+
+    return hextets.join(':')
   }
 
   // hasEpochChanged calculates if the server epoch has changed, taking into

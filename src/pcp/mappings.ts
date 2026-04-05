@@ -75,8 +75,13 @@ export class Mappings {
     const now = Date.now()
 
     return this.mappings.filter(mapping => {
-      if (mapping.autoRefresh === undefined || !mapping.autoRefresh) return false
-      if (mapping.expiresAt === undefined || mapping.lifetime === undefined) return false
+      if (mapping.autoRefresh === undefined || !mapping.autoRefresh) {
+        return false
+      }
+
+      if (mapping.expiresAt === undefined || mapping.lifetime === undefined) {
+        return false
+      }
 
       // If less than 1/2 the lifetime is remaining, class as expiring
       // https://www.rfc-editor.org/rfc/rfc6887#section-11.2.1

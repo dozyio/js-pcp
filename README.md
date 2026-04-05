@@ -17,8 +17,7 @@ const client = pcpNat('2a0e:e0c0:0001:0002:e000:0001:3243:c001')
 const gateway = await client.getGateway()
 
 const mapping = await gateway.map(3000, '2a0e:e0c0:0001:0002:1619:e31a:f311:c00d', {
-  protocol: 'udp',
-  suggestedExternalPort: 2000
+  protocol: 'udp'
 })
 
 console.info(mapping)
