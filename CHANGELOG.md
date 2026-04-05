@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/dozyio/js-pcp/compare/v1.0.0...v1.0.1) (2026-04-05)
+
+### Trivial Changes
+
+* release ([7526aaf](https://github.com/dozyio/js-pcp/commit/7526aaf57967490c6ddb287d698eb9d10927c2d4))
+
 ## 1.0.0 (2026-04-05)
 
 ### Trivial Changes
