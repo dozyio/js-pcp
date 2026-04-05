@@ -1,6 +1,6 @@
 {
   "name": "@dozyio/pcp",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "PCP (RFC 6887) port mapping for Node.js",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/dozyio/js-pcp#readme",

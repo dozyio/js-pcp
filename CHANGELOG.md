@@ -1,0 +1,8 @@
+## 1.0.0 (2026-04-05)
+
+### Trivial Changes
+
+* bug fixes ([1abf35c](https://github.com/dozyio/js-pcp/commit/1abf35c885a9a5e6630071c6056d3541aef27216))
+* release ([4800365](https://github.com/dozyio/js-pcp/commit/48003652937a77fbe6330e387f48e3a297b1f5a8))
+* release ([6d6ea7c](https://github.com/dozyio/js-pcp/commit/6d6ea7c9c22451e6a0d832fc79156cea25363873))
+* rename repo ([795823d](https://github.com/dozyio/js-pcp/commit/795823df4b4c3d3674d6842d072df0b1d70ecaf8))
