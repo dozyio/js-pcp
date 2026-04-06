@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/dozyio/js-pcp/compare/v1.0.1...v1.0.2) (2026-04-06)
+
+### Trivial Changes
+
+* add prepack ([0bf4f0b](https://github.com/dozyio/js-pcp/commit/0bf4f0b946ac6ee559ae14c5631a524b073b916a))
+
 ## [1.0.1](https://github.com/dozyio/js-pcp/compare/v1.0.0...v1.0.1) (2026-04-05)
 
 ### Trivial Changes
